@@ -1,0 +1,4 @@
+path: /home/runarto/Documents/datasyn-project/dataset_ball
+train: images/train
+val: images/val
+names: ['ball']
