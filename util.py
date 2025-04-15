@@ -84,12 +84,23 @@ def copy_random_images(src_folder, dst_folder, num_images=20):
     image_files = [f for f in os.listdir(src_folder) if f.lower().endswith(('.jpg', '.png'))]
     sampled = random.sample(image_files, min(num_images, len(image_files)))
 
+    def get_unique_filename(dst_folder, filename):
+        name, ext = os.path.splitext(filename)
+        counter = 1
+        new_name = filename
+        while os.path.exists(os.path.join(dst_folder, new_name)):
+            new_name = f"{name}_{counter}{ext}"
+            counter += 1
+        return new_name
+
     for fname in sampled:
         src_path = os.path.join(src_folder, fname)
-        dst_path = os.path.join(dst_folder, fname)
+        unique_fname = get_unique_filename(dst_folder, fname)
+        dst_path = os.path.join(dst_folder, unique_fname)
         shutil.copy2(src_path, dst_path)
 
-    print(f"✅ Copied {len(sampled)} images to '{dst_folder}'")
+    print(f"✅ Copied {len(sampled)} images to '{dst_folder}' (with collision-safe filenames)")
+
 
 
 

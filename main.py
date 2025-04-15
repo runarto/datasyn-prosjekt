@@ -4,7 +4,7 @@ from object_tracking import ObjectTracking  # Make sure this points to the updat
 from util import copy_random_images
 
 if __name__ == "__main__":
-    image_folder = "/datasets/tdt4265/other/rbk/1_train-val_1min_aalesund_from_start/img1"
+    image_folder = "/datasets/tdt4265/other/rbk/2_train-val_1min_after_goal/img1"
 
     copy_random_images(image_folder, "example_images", num_images=20)
 
