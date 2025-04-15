@@ -1,0 +1,832 @@
+<?xml version="1.0" encoding="utf-8"?>
+<annotations>
+  <version>1.1</version>
+  <meta>
+    <job>
+      <id>2358593</id>
+      <size>20</size>
+      <mode>annotation</mode>
+      <overlap>0</overlap>
+      <bugtracker></bugtracker>
+      <created>2025-04-15 16:15:36.259139+00:00</created>
+      <updated>2025-04-15 16:51:55.702373+00:00</updated>
+      <subset>Train</subset>
+      <start_frame>0</start_frame>
+      <stop_frame>19</stop_frame>
+      <frame_filter></frame_filter>
+      <segments>
+        <segment>
+          <id>2360910</id>
+          <start>0</start>
+          <stop>19</stop>
+          <url>https://app.cvat.ai/api/jobs/2358593</url>
+        </segment>
+      </segments>
+      <owner>
+        <username>runar</username>
+        <email>runartob@gmail.com</email>
+      </owner>
+      <assignee></assignee>
+      <labels>
+        <label>
+          <name>penalty-left</name>
+          <color>#ff6666</color>
+          <type>points</type>
+          <attributes>
+            <attribute>
+              <name>x</name>
+              <mutable>True</mutable>
+              <input_type>number</input_type>
+              <default_value>11.0</default_value>
+              <values>0
+120
+0.01</values>
+            </attribute>
+            <attribute>
+              <name>y</name>
+              <mutable>True</mutable>
+              <input_type>number</input_type>
+              <default_value>-34.0</default_value>
+              <values>0
+-68
+0.01</values>
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>penalty-right</name>
+          <color>#66cc66</color>
+          <type>points</type>
+          <attributes>
+            <attribute>
+              <name>x</name>
+              <mutable>True</mutable>
+              <input_type>number</input_type>
+              <default_value>94.0</default_value>
+              <values>0
+120
+0.01</values>
+            </attribute>
+            <attribute>
+              <name>y</name>
+              <mutable>True</mutable>
+              <input_type>number</input_type>
+              <default_value>-34.0</default_value>
+              <values>0
+-68
+0.01</values>
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>center-circle</name>
+          <color>#6666ff</color>
+          <type>points</type>
+          <attributes>
+            <attribute>
+              <name>x</name>
+              <mutable>True</mutable>
+              <input_type>number</input_type>
+              <default_value>52.5</default_value>
+              <values>0
+120
+0.01</values>
+            </attribute>
+            <attribute>
+              <name>y</name>
+              <mutable>True</mutable>
+              <input_type>number</input_type>
+              <default_value>-34.0</default_value>
+              <values>0
+-68
+0.01</values>
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>pl-box-tl</name>
+          <color>#ffcc00</color>
+          <type>points</type>
+          <attributes>
+            <attribute>
+              <name>x</name>
+              <mutable>True</mutable>
+              <input_type>number</input_type>
+              <default_value>0.0</default_value>
+              <values>0
+120
+0.01</values>
+            </attribute>
+            <attribute>
+              <name>y</name>
+              <mutable>True</mutable>
+              <input_type>number</input_type>
+              <default_value>-13.85</default_value>
+              <values>0
+-68
+0.01</values>
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>pl-box-tr</name>
+          <color>#ff9900</color>
+          <type>points</type>
+          <attributes>
+            <attribute>
+              <name>x</name>
+              <mutable>True</mutable>
+              <input_type>number</input_type>
+              <default_value>16.5</default_value>
+              <values>0
+120
+0.01</values>
+            </attribute>
+            <attribute>
+              <name>y</name>
+              <mutable>True</mutable>
+              <input_type>number</input_type>
+              <default_value>-13.85</default_value>
+              <values>0
+-68
+0.01</values>
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>pr-box-tl</name>
+          <color>#66ffff</color>
+          <type>points</type>
+          <attributes>
+            <attribute>
+              <name>x</name>
+              <mutable>True</mutable>
+              <input_type>number</input_type>
+              <default_value>88.5</default_value>
+              <values>0
+120
+0.01</values>
+            </attribute>
+            <attribute>
+              <name>y</name>
+              <mutable>True</mutable>
+              <input_type>number</input_type>
+              <default_value>-13.85</default_value>
+              <values>0
+-68
+0.01</values>
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>pr-box-tr</name>
+          <color>#cc66ff</color>
+          <type>points</type>
+          <attributes>
+            <attribute>
+              <name>x</name>
+              <mutable>True</mutable>
+              <input_type>number</input_type>
+              <default_value>105.0</default_value>
+              <values>0
+120
+0.01</values>
+            </attribute>
+            <attribute>
+              <name>y</name>
+              <mutable>True</mutable>
+              <input_type>number</input_type>
+              <default_value>-13.85</default_value>
+              <values>0
+-68
+0.01</values>
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>halfway-top</name>
+          <color>#ff00cc</color>
+          <type>points</type>
+          <attributes>
+            <attribute>
+              <name>x</name>
+              <mutable>True</mutable>
+              <input_type>number</input_type>
+              <default_value>52.5</default_value>
+              <values>0
+120
+0.01</values>
+            </attribute>
+            <attribute>
+              <name>y</name>
+              <mutable>True</mutable>
+              <input_type>number</input_type>
+              <default_value>0.0</default_value>
+              <values>0
+-68
+0.01</values>
+            </attribute>
+          </attributes>
+        </label>
+        <label>
+          <name>halfway-circle-intersect</name>
+          <color>#00ccff</color>
+          <type>points</type>
+          <attributes>
+            <attribute>
+              <name>x</name>
+              <mutable>True</mutable>
+              <input_type>number</input_type>
+              <default_value>52.5</default_value>
+              <values>0
+120
+0.01</values>
+            </attribute>
+            <attribute>
+              <name>y</name>
+              <mutable>True</mutable>
+              <input_type>number</input_type>
+              <default_value>-24.15</default_value>
+              <values>0
+-68
+0.01</values>
+            </attribute>
+          </attributes>
+        </label>
+      </labels>
+    </job>
+    <dumped>2025-04-15 16:57:09.418797+00:00</dumped>
+  </meta>
+  <image id="0" name="000003.jpg" width="1920" height="1080">
+    <points label="center-circle" source="manual" occluded="0" points="804.02,304.76" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="halfway-circle-intersect" source="manual" occluded="0" points="802.36,223.02" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-24.15</attribute>
+    </points>
+    <points label="halfway-top" source="manual" occluded="0" points="797.35,84.57" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">0.0</attribute>
+    </points>
+    <points label="pr-box-tl" source="manual" occluded="0" points="1761.52,131.27" z_order="0">
+      <attribute name="x">88.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+  </image>
+  <image id="1" name="000043.jpg" width="1920" height="1080">
+    <points label="center-circle" source="manual" occluded="0" points="822.40,301.40" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="halfway-circle-intersect" source="manual" occluded="0" points="817.40,223.00" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-24.15</attribute>
+    </points>
+    <points label="halfway-top" source="manual" occluded="0" points="812.40,85.40" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">0.0</attribute>
+    </points>
+    <points label="pr-box-tl" source="manual" occluded="0" points="1772.40,131.30" z_order="0">
+      <attribute name="x">88.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+  </image>
+  <image id="2" name="000093.jpg" width="1920" height="1080">
+    <points label="center-circle" source="manual" occluded="0" points="663.90,291.40" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="halfway-circle-intersect" source="manual" occluded="0" points="662.20,209.70" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-24.15</attribute>
+    </points>
+    <points label="halfway-top" source="manual" occluded="0" points="650.60,66.20" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">0.0</attribute>
+    </points>
+    <points label="pr-box-tl" source="manual" occluded="0" points="1633.10,97.90" z_order="0">
+      <attribute name="x">88.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+  </image>
+  <image id="3" name="000199.jpg" width="1920" height="1080">
+    <points label="center-circle" source="manual" occluded="0" points="590.50,309.70" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="halfway-circle-intersect" source="manual" occluded="0" points="583.80,219.70" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-24.15</attribute>
+    </points>
+    <points label="halfway-top" source="manual" occluded="0" points="575.50,77.90" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">0.0</attribute>
+    </points>
+    <points label="pr-box-tl" source="manual" occluded="0" points="1549.70,101.20" z_order="0">
+      <attribute name="x">88.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+  </image>
+  <image id="4" name="000274.jpg" width="1920" height="1080">
+    <points label="center-circle" source="manual" occluded="0" points="638.90,406.50" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="halfway-circle-intersect" source="manual" occluded="0" points="635.60,341.60" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-24.15</attribute>
+    </points>
+    <points label="halfway-top" source="manual" occluded="0" points="627.30,233.20" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">0.0</attribute>
+    </points>
+    <points label="pr-box-tl" source="manual" occluded="0" points="1359.40,246.50" z_order="0">
+      <attribute name="x">88.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="penalty-right" source="manual" occluded="0" points="1721.29,339.72" z_order="0">
+      <attribute name="x">94.0</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="pr-box-tr" source="manual" occluded="0" points="1644.49,236.21" z_order="0">
+      <attribute name="x">105.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+  </image>
+  <image id="5" name="000293.jpg" width="1920" height="1080">
+    <points label="center-circle" source="manual" occluded="0" points="591.30,440.75" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="halfway-circle-intersect" source="manual" occluded="0" points="633.90,370.00" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-24.15</attribute>
+    </points>
+    <points label="halfway-top" source="manual" occluded="0" points="627.30,269.90" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">0.0</attribute>
+    </points>
+    <points label="pr-box-tl" source="manual" occluded="0" points="1307.60,283.20" z_order="0">
+      <attribute name="x">88.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="penalty-right" source="manual" occluded="0" points="1642.80,366.40" z_order="0">
+      <attribute name="x">94.0</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="pr-box-tr" source="manual" occluded="0" points="1569.40,269.60" z_order="0">
+      <attribute name="x">105.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+  </image>
+  <image id="6" name="000319.jpg" width="1920" height="1080">
+    <points label="center-circle" source="manual" occluded="0" points="543.70,475.00" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="halfway-circle-intersect" source="manual" occluded="0" points="540.40,415.10" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-24.15</attribute>
+    </points>
+    <points label="halfway-top" source="manual" occluded="0" points="532.10,315.00" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">0.0</attribute>
+    </points>
+    <points label="pr-box-tl" source="manual" occluded="0" points="1199.10,318.30" z_order="0">
+      <attribute name="x">88.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="penalty-right" source="manual" occluded="0" points="1517.60,394.80" z_order="0">
+      <attribute name="x">94.0</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="pr-box-tr" source="manual" occluded="0" points="1442.50,301.30" z_order="0">
+      <attribute name="x">105.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+  </image>
+  <image id="7" name="000679.jpg" width="1920" height="1080">
+    <points label="center-circle" source="manual" occluded="0" points="156.40,424.90" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="halfway-circle-intersect" source="manual" occluded="0" points="143.00,351.70" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-24.15</attribute>
+    </points>
+    <points label="halfway-top" source="manual" occluded="0" points="119.70,224.80" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">0.0</attribute>
+    </points>
+    <points label="pr-box-tl" source="manual" occluded="0" points="933.60,199.80" z_order="0">
+      <attribute name="x">88.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="penalty-right" source="manual" occluded="0" points="1282.20,271.30" z_order="0">
+      <attribute name="x">94.0</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="pr-box-tr" source="manual" occluded="0" points="1200.40,172.70" z_order="0">
+      <attribute name="x">105.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+  </image>
+  <image id="8" name="000802.jpg" width="1920" height="1080">
+    <points label="center-circle" source="manual" occluded="0" points="448.60,388.20" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="halfway-circle-intersect" source="manual" occluded="0" points="438.50,325.00" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-24.15</attribute>
+    </points>
+    <points label="halfway-top" source="manual" occluded="0" points="423.60,221.50" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">0.0</attribute>
+    </points>
+    <points label="pr-box-tl" source="manual" occluded="0" points="1110.60,214.80" z_order="0">
+      <attribute name="x">88.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="penalty-right" source="manual" occluded="0" points="1419.10,286.30" z_order="0">
+      <attribute name="x">94.0</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="pr-box-tr" source="manual" occluded="0" points="1345.70,194.40" z_order="0">
+      <attribute name="x">105.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+  </image>
+  <image id="9" name="000852.jpg" width="1920" height="1080">
+    <points label="center-circle" source="manual" occluded="0" points="952.80,318.10" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="halfway-circle-intersect" source="manual" occluded="0" points="952.70,259.90" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-24.15</attribute>
+    </points>
+    <points label="halfway-top" source="manual" occluded="0" points="954.50,178.10" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">0.0</attribute>
+    </points>
+    <points label="pr-box-tl" source="manual" occluded="0" points="1549.40,215.60" z_order="0">
+      <attribute name="x">88.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pr-box-tr" source="manual" occluded="0" points="1835.90,217.60" z_order="0">
+      <attribute name="x">105.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tl" source="manual" occluded="0" points="93.46,211.17" z_order="0">
+      <attribute name="x">0.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tr" source="manual" occluded="0" points="348.90,216.17" z_order="0">
+      <attribute name="x">16.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+  </image>
+  <image id="10" name="000938.jpg" width="1920" height="1080">
+    <points label="center-circle" source="manual" occluded="0" points="1148.10,318.10" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="halfway-circle-intersect" source="manual" occluded="0" points="1153.00,268.20" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-24.15</attribute>
+    </points>
+    <points label="halfway-top" source="manual" occluded="0" points="1161.50,184.80" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">0.0</attribute>
+    </points>
+    <points label="pr-box-tl" source="manual" occluded="0" points="1798.20,249.00" z_order="0">
+      <attribute name="x">88.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pr-box-tr" source="manual" occluded="0" points="1835.90,217.60" z_order="0">
+      <attribute name="x">105.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tl" source="manual" occluded="0" points="400.70,192.80" z_order="0">
+      <attribute name="x">0.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tr" source="manual" occluded="0" points="606.00,206.20" z_order="0">
+      <attribute name="x">16.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="penalty-left" source="manual" occluded="0" points="337.22,274.61" z_order="0">
+      <attribute name="x">11.0</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+  </image>
+  <image id="11" name="000941.jpg" width="1920" height="1080">
+    <points label="center-circle" source="manual" occluded="0" points="1163.10,318.10" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="halfway-circle-intersect" source="manual" occluded="0" points="1169.70,264.90" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-24.15</attribute>
+    </points>
+    <points label="halfway-top" source="manual" occluded="0" points="1176.50,184.80" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">0.0</attribute>
+    </points>
+    <points label="pr-box-tl" source="manual" occluded="0" points="1823.20,247.30" z_order="0">
+      <attribute name="x">88.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pr-box-tr" source="manual" occluded="0" points="1835.90,217.60" z_order="0">
+      <attribute name="x">105.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tl" source="manual" occluded="0" points="412.40,187.80" z_order="0">
+      <attribute name="x">0.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tr" source="manual" occluded="0" points="624.40,199.50" z_order="0">
+      <attribute name="x">16.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="penalty-left" source="manual" occluded="0" points="352.20,271.30" z_order="0">
+      <attribute name="x">11.0</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+  </image>
+  <image id="12" name="000970.jpg" width="1920" height="1080">
+    <points label="center-circle" source="manual" occluded="0" points="1242.40,308.90" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="halfway-circle-intersect" source="manual" occluded="0" points="1250.50,252.60" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-24.15</attribute>
+    </points>
+    <points label="halfway-top" source="manual" occluded="0" points="1261.60,168.30" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">0.0</attribute>
+    </points>
+    <points label="pr-box-tl" source="manual" occluded="0" points="1807.35,258.15" z_order="0">
+      <attribute name="x">88.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pr-box-tr" source="manual" occluded="0" points="1835.90,217.60" z_order="0">
+      <attribute name="x">105.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tl" source="manual" occluded="0" points="490.00,161.50" z_order="0">
+      <attribute name="x">0.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tr" source="manual" occluded="0" points="701.00,175.30" z_order="0">
+      <attribute name="x">16.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="penalty-left" source="manual" occluded="0" points="432.30,241.20" z_order="0">
+      <attribute name="x">11.0</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+  </image>
+  <image id="13" name="001065.jpg" width="1920" height="1080">
+    <points label="center-circle" source="manual" occluded="0" points="1279.00,307.60" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="halfway-circle-intersect" source="manual" occluded="0" points="1286.90,249.80" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-24.15</attribute>
+    </points>
+    <points label="halfway-top" source="manual" occluded="0" points="1298.80,155.90" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">0.0</attribute>
+    </points>
+    <points label="pr-box-tl" source="manual" occluded="0" points="1791.50,269.00" z_order="0">
+      <attribute name="x">88.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pr-box-tr" source="manual" occluded="0" points="1835.90,217.60" z_order="0">
+      <attribute name="x">105.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tl" source="manual" occluded="0" points="457.90,148.10" z_order="0">
+      <attribute name="x">0.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tr" source="manual" occluded="0" points="684.60,165.60" z_order="0">
+      <attribute name="x">16.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="penalty-left" source="manual" occluded="0" points="397.20,234.50" z_order="0">
+      <attribute name="x">11.0</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+  </image>
+  <image id="14" name="001157.jpg" width="1920" height="1080">
+    <points label="center-circle" source="manual" occluded="0" points="1119.40,363.90" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="halfway-circle-intersect" source="manual" occluded="0" points="1124.10,316.00" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-24.15</attribute>
+    </points>
+    <points label="halfway-top" source="manual" occluded="0" points="1132.10,232.80" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">0.0</attribute>
+    </points>
+    <points label="pr-box-tl" source="manual" occluded="0" points="1775.65,279.85" z_order="0">
+      <attribute name="x">88.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pr-box-tr" source="manual" occluded="0" points="1835.90,217.60" z_order="0">
+      <attribute name="x">105.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tl" source="manual" occluded="0" points="340.10,244.90" z_order="0">
+      <attribute name="x">0.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tr" source="manual" occluded="0" points="560.20,250.80" z_order="0">
+      <attribute name="x">16.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="penalty-left" source="manual" occluded="0" points="277.00,328.00" z_order="0">
+      <attribute name="x">11.0</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+  </image>
+  <image id="15" name="001217.jpg" width="1920" height="1080">
+    <points label="center-circle" source="manual" occluded="0" points="1114.10,372.10" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="halfway-circle-intersect" source="manual" occluded="0" points="1116.50,321.50" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-24.15</attribute>
+    </points>
+    <points label="halfway-top" source="manual" occluded="0" points="1123.60,236.90" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">0.0</attribute>
+    </points>
+    <points label="pr-box-tl" source="manual" occluded="0" points="1759.80,290.70" z_order="0">
+      <attribute name="x">88.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pr-box-tr" source="manual" occluded="0" points="1835.90,217.60" z_order="0">
+      <attribute name="x">105.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tl" source="manual" occluded="0" points="340.50,248.50" z_order="0">
+      <attribute name="x">0.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tr" source="manual" occluded="0" points="561.00,257.20" z_order="0">
+      <attribute name="x">16.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="penalty-left" source="manual" occluded="0" points="280.30,336.30" z_order="0">
+      <attribute name="x">11.0</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+  </image>
+  <image id="16" name="001419.jpg" width="1920" height="1080">
+    <points label="center-circle" source="manual" occluded="0" points="1395.10,472.10" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="halfway-circle-intersect" source="manual" occluded="0" points="1403.20,402.90" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-24.15</attribute>
+    </points>
+    <points label="halfway-top" source="manual" occluded="0" points="1414.00,286.10" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">0.0</attribute>
+    </points>
+    <points label="pr-box-tl" source="manual" occluded="0" points="1759.80,290.70" z_order="0">
+      <attribute name="x">88.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pr-box-tr" source="manual" occluded="0" points="1835.90,217.60" z_order="0">
+      <attribute name="x">105.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tl" source="manual" occluded="0" points="331.80,272.60" z_order="0">
+      <attribute name="x">0.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tr" source="manual" occluded="0" points="619.90,289.50" z_order="0">
+      <attribute name="x">16.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="penalty-left" source="manual" occluded="0" points="241.90,381.40" z_order="0">
+      <attribute name="x">11.0</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+  </image>
+  <image id="17" name="001502.jpg" width="1920" height="1080">
+    <points label="center-circle" source="manual" occluded="0" points="1723.50,381.20" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="halfway-circle-intersect" source="manual" occluded="0" points="1740.00,302.40" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-24.15</attribute>
+    </points>
+    <points label="halfway-top" source="manual" occluded="0" points="1766.70,162.70" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">0.0</attribute>
+    </points>
+    <points label="pr-box-tl" source="manual" occluded="0" points="1759.80,290.70" z_order="0">
+      <attribute name="x">88.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pr-box-tr" source="manual" occluded="0" points="1835.90,217.60" z_order="0">
+      <attribute name="x">105.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tl" source="manual" occluded="0" points="574.00,117.40" z_order="0">
+      <attribute name="x">0.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tr" source="manual" occluded="0" points="871.80,148.20" z_order="0">
+      <attribute name="x">16.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="penalty-left" source="manual" occluded="0" points="484.00,229.50" z_order="0">
+      <attribute name="x">11.0</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+  </image>
+  <image id="18" name="001533.jpg" width="1920" height="1080">
+    <points label="center-circle" source="manual" occluded="0" points="1733.80,393.05" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="halfway-circle-intersect" source="manual" occluded="0" points="1751.20,314.55" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-24.15</attribute>
+    </points>
+    <points label="halfway-top" source="manual" occluded="0" points="1778.80,174.60" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">0.0</attribute>
+    </points>
+    <points label="pr-box-tl" source="manual" occluded="0" points="1759.80,290.70" z_order="0">
+      <attribute name="x">88.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pr-box-tr" source="manual" occluded="0" points="1835.90,217.60" z_order="0">
+      <attribute name="x">105.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tl" source="manual" occluded="0" points="576.70,127.60" z_order="0">
+      <attribute name="x">0.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tr" source="manual" occluded="0" points="875.80,153.80" z_order="0">
+      <attribute name="x">16.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="penalty-left" source="manual" occluded="0" points="484.00,231.20" z_order="0">
+      <attribute name="x">11.0</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+  </image>
+  <image id="19" name="001559.jpg" width="1920" height="1080">
+    <points label="center-circle" source="manual" occluded="0" points="1744.10,404.90" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+    <points label="halfway-circle-intersect" source="manual" occluded="0" points="1762.40,326.70" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">-24.15</attribute>
+    </points>
+    <points label="halfway-top" source="manual" occluded="0" points="1790.90,186.50" z_order="0">
+      <attribute name="x">52.5</attribute>
+      <attribute name="y">0.0</attribute>
+    </points>
+    <points label="pr-box-tl" source="manual" occluded="0" points="1759.80,290.70" z_order="0">
+      <attribute name="x">88.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pr-box-tr" source="manual" occluded="0" points="1835.90,217.60" z_order="0">
+      <attribute name="x">105.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tl" source="manual" occluded="0" points="591.00,136.00" z_order="0">
+      <attribute name="x">0.0</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="pl-box-tr" source="manual" occluded="0" points="888.20,166.10" z_order="0">
+      <attribute name="x">16.5</attribute>
+      <attribute name="y">-13.85</attribute>
+    </points>
+    <points label="penalty-left" source="manual" occluded="0" points="495.70,244.60" z_order="0">
+      <attribute name="x">11.0</attribute>
+      <attribute name="y">-34.0</attribute>
+    </points>
+  </image>
+</annotations>
