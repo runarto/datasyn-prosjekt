@@ -123,6 +123,10 @@ def copy_random_images(src_folder, dst_folder, num_images=20):
 # ) 
 
 
-
+copy_random_images(
+    "/datasets/tdt4265/other/rbk/3_test_1min_hamkam_from_start/img1",
+    "example_test_images",
+    num_images=20
+)
 
 

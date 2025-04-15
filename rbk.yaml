@@ -1,7 +1,0 @@
-train: /home/runarto/Documents/datasyn-project/dataset/images/train
-val: /home/runarto/Documents/datasyn-project/dataset/images/val
-
-nc: 2
-names: ['player', 'ball']
-
-
