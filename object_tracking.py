@@ -1,8 +1,10 @@
 from ultralytics import YOLO
 import cv2
+import numpy as np
+import os
 
 class ObjectTracking:
-    def __init__(self, image_folder, ball_weights='runs/detect/train_ball/weights/best.pt', player_weights='runs/detect/train_player/weights/best.pt'):
+    def __init__(self, image_folder, ball_weights='runs/detect/train_ball/weights/best.pt', player_weights='runs/detect/train_player/weights/best.pt', auto_calibrate=False):
         self.image_folder = image_folder
         self.ball_model = YOLO(ball_weights)
         self.player_model = YOLO(player_weights)
@@ -16,6 +18,54 @@ class ObjectTracking:
             'ball': (0, 0, 255),     # Red
             'player': (0, 255, 0),   # Green
         }
+
+        self.K = None
+        if auto_calibrate:
+            self.K = self.Calibrate()
+
+    def Calibrate(self, max_images=20, randomize=False):
+        checkerboard = (8, 6)
+
+        objp = np.zeros((checkerboard[0] * checkerboard[1], 3), np.float32)
+        objp[:, :2] = np.mgrid[0:checkerboard[0], 0:checkerboard[1]].T.reshape(-1, 2)
+
+        objpoints = []
+        imgpoints = []
+
+        image_files = sorted([
+            os.path.join(self.image_folder, fname)
+            for fname in os.listdir(self.image_folder)
+            if fname.lower().endswith(('.png', '.jpg', '.jpeg'))
+        ])
+
+        if randomize:
+            import random
+            image_files = random.sample(image_files, min(max_images, len(image_files)))
+        else:
+            image_files = image_files[:max_images]
+
+        for fname in image_files:
+            img = cv2.imread(fname)
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            ret, corners = cv2.findChessboardCorners(gray, checkerboard, None)
+
+            print(f"{fname} → corners found: {ret}")
+
+            if ret:
+                objpoints.append(objp)
+                imgpoints.append(corners)
+
+        if len(objpoints) < 3:
+            raise ValueError("Not enough valid images found for calibration.")
+
+        ret, K, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+        self.K = K
+
+        print("Camera calibration successful!")
+        print("Intrinsic matrix (K):\n", K)
+
+        return K
+
 
     def detect(self, model, frame, label, conf):
         results = model.predict(frame, conf=conf)[0]
@@ -75,4 +125,8 @@ class ObjectTracking:
         cv2.waitKey(1)
 
         return labels
+
+
+
+
 

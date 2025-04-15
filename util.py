@@ -78,22 +78,38 @@ def convert_and_split(gt_path, image_folder, shared_image_dir, label_dir_ball, l
 
     return "Merged and split dataset successfully."
 
-# Example call (for multiple sequences, run this multiple times):
-convert_and_split(
-    gt_path="/datasets/tdt4265/other/rbk/1_train-val_1min_aalesund_from_start/gt/gt.txt",
-    image_folder="/datasets/tdt4265/other/rbk/1_train-val_1min_aalesund_from_start/img1",
-    shared_image_dir="/home/runarto/Documents/datasyn-project/shared_images",
-    label_dir_ball="/home/runarto/Documents/datasyn-project/dataset_ball",
-    label_dir_player="/home/runarto/Documents/datasyn-project/dataset_player"
-)
+def copy_random_images(src_folder, dst_folder, num_images=20):
+    os.makedirs(dst_folder, exist_ok=True)
 
-convert_and_split(
-    gt_path="/datasets/tdt4265/other/rbk/2_train-val_1min_after_goal/gt/gt.txt",
-    image_folder="/datasets/tdt4265/other/rbk/2_train-val_1min_after_goal/img1",
-    shared_image_dir="/home/runarto/Documents/datasyn-project/shared_images",
-    label_dir_ball="/home/runarto/Documents/datasyn-project/dataset_ball",
-    label_dir_player="/home/runarto/Documents/datasyn-project/dataset_player"
-) 
+    image_files = [f for f in os.listdir(src_folder) if f.lower().endswith(('.jpg', '.png'))]
+    sampled = random.sample(image_files, min(num_images, len(image_files)))
+
+    for fname in sampled:
+        src_path = os.path.join(src_folder, fname)
+        dst_path = os.path.join(dst_folder, fname)
+        shutil.copy2(src_path, dst_path)
+
+    print(f"✅ Copied {len(sampled)} images to '{dst_folder}'")
+
+
+
+
+# # Example call (for multiple sequences, run this multiple times):
+# convert_and_split(
+#     gt_path="/datasets/tdt4265/other/rbk/1_train-val_1min_aalesund_from_start/gt/gt.txt",
+#     image_folder="/datasets/tdt4265/other/rbk/1_train-val_1min_aalesund_from_start/img1",
+#     shared_image_dir="/home/runarto/Documents/datasyn-project/shared_images",
+#     label_dir_ball="/home/runarto/Documents/datasyn-project/dataset_ball",
+#     label_dir_player="/home/runarto/Documents/datasyn-project/dataset_player"
+# )
+
+# convert_and_split(
+#     gt_path="/datasets/tdt4265/other/rbk/2_train-val_1min_after_goal/gt/gt.txt",
+#     image_folder="/datasets/tdt4265/other/rbk/2_train-val_1min_after_goal/img1",
+#     shared_image_dir="/home/runarto/Documents/datasyn-project/shared_images",
+#     label_dir_ball="/home/runarto/Documents/datasyn-project/dataset_ball",
+#     label_dir_player="/home/runarto/Documents/datasyn-project/dataset_player"
+# ) 
 
 
 
