@@ -4,13 +4,15 @@ import shutil
 from PIL import Image
 from ultralytics import YOLO
 import torch
-
+import socket
+from pathlib import Path
 
 def create_dataset_yaml(yaml_path='your_dataset/rbk.yaml'):
+    abs_dataset_path = os.path.abspath('your_dataset')
     config = {
-        'path': os.path.abspath('your_dataset'),
-        'train': 'images/train',
-        'val': 'images/val',
+        'path': abs_dataset_path,
+        'train': os.path.join(abs_dataset_path, 'images/train'),
+        'val': os.path.join(abs_dataset_path, 'images/val'),
         'nc': 2,
         'names': ['ball', 'player']
     }
@@ -35,7 +37,6 @@ def prepare_data_structure():
 
 
 def copy_images_and_labels(img_src, gt_txt, split='train'):
-    from pathlib import Path
     output_img_dir = Path(f'your_dataset/images/{split}')
     output_lbl_dir = Path(f'your_dataset/labels/{split}')
     output_img_dir.mkdir(parents=True, exist_ok=True)
@@ -49,8 +50,8 @@ def copy_images_and_labels(img_src, gt_txt, split='train'):
     try:
         with Image.open(os.path.join(img_src, img_files[0])) as im:
             img_w, img_h = im.size
-    except:
-        print("⚠️ Could not read image dimensions. Falling back to 1920x1080.")
+    except Exception as e:
+        print(f"⚠️ Could not read image dimensions. Using fallback 1920x1080. Error: {e}")
 
     labels = {}
     with open(gt_txt, 'r') as f:
@@ -82,16 +83,19 @@ def train_model(data_yaml, weights='runs/soccer/rbk_detector/weights/best.pt', u
     if use_pretrained:
         model = YOLO(weights)
     else:
-        model = YOLO('yolov8s.pt')
+        model = YOLO('yolov9s.pt')
+
+    save_dir = os.path.join(os.getcwd(), 'runs/football')
+
     results = model.train(
         data=data_yaml,
         epochs=50,
         batch=4,
         imgsz=1280,
-        plots=True,
+        plots=False,
         save_period=10,
-        device='0' if torch.cuda.is_available() else 'cpu',
-        project='/work/runarto/runs/football',
+        device='0' if torch.cuda.is_available() else 'mps',
+        project=save_dir,
         name='rbk_detector',
         verbose=True,
         patience=20,
@@ -106,32 +110,37 @@ def train_model(data_yaml, weights='runs/soccer/rbk_detector/weights/best.pt', u
         box=7.5,
         cls=0.5,
         dfl=1.5,
-        hsv_h=0.015,
-        hsv_s=0.7,
-        hsv_v=0.4,
-        translate=0.1,
-        scale=0.5,
-        fliplr=0.5,
-        mosaic=1.0,
-        cache=False
     )
     print("✅ Training complete. Model saved in:", results.save_dir)
 
 
 if __name__ == '__main__':
+    print(torch.backends.mps.is_available())
+    print(torch.backends.mps.is_built())
     if prepare_data_structure():
-        copy_images_and_labels(
-            img_src='/datasets/tdt4265/other/rbk/1_train-val_1min_aalesund_from_start/img1',
-            gt_txt='/datasets/tdt4265/other/rbk/1_train-val_1min_aalesund_from_start/gt/gt.txt',
-            split='train'
-        )
-        copy_images_and_labels(
-            img_src='/datasets/tdt4265/other/rbk/2_train-val_1min_after_goal/img1',
-            gt_txt='/datasets/tdt4265/other/rbk/2_train-val_1min_after_goal/gt/gt.txt',
-            split='val'
-        )
+        hostname = socket.gethostname()
+        if "clab" in hostname:
+            copy_images_and_labels(
+                img_src='/datasets/tdt4265/other/rbk/3_test_1min_hamkam_from_start/img1',
+                gt_txt='/datasets/tdt4265/other/rbk/3_test_1min_hamkam_from_start/gt/gt.txt',
+                split='train'
+            )
+            copy_images_and_labels(
+                img_src='/datasets/tdt4265/other/rbk/3_test_1min_hamkam_from_start/img1',
+                gt_txt='/datasets/tdt4265/other/rbk/3_test_1min_hamkam_from_start/gt/gt.txt',
+                split='val'
+            )
+        else:
+            copy_images_and_labels(
+                img_src='/Users/runartobiassen/Downloads/3_test_1min_hamkam_from_start/img1',
+                gt_txt='/Users/runartobiassen/Downloads/3_test_1min_hamkam_from_start/gt/gt.txt',
+                split='train'
+            )
+            copy_images_and_labels(
+                img_src='/Users/runartobiassen/Downloads/3_test_1min_hamkam_from_start/img1',
+                gt_txt='/Users/runartobiassen/Downloads/3_test_1min_hamkam_from_start/gt/gt.txt',
+                split='val'
+            )
 
     yaml_path = create_dataset_yaml()
     train_model(yaml_path, use_pretrained=False)
-
-
