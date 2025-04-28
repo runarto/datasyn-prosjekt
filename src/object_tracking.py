@@ -10,6 +10,7 @@ from collections import defaultdict
 from src.player_stats import PlayerStats  # <-- Import PlayerStats
 import logging
 from pathlib import Path
+from supervision.tracking import OCSort 
 
 pitch_keypoints_meters = np.array([
     (0.000, 0.000),
@@ -46,11 +47,6 @@ pitch_keypoints_meters = np.array([
     (30.692, 33.500)
 ], dtype=np.float32)
 
-load_dotenv()
-CLIENT = InferenceHTTPClient(
-    api_url="https://serverless.roboflow.com",
-    api_key=os.getenv("ROBOFLOW_API_KEY"),
-)
 
 class ObjectTracking:
     def __init__(self, image_folder, weights='rbk_detector/aug_balls/weights/best.pt', ssh_mode=False):
@@ -62,34 +58,25 @@ class ObjectTracking:
         self.BALL_ID = 0
         self.PLAYER_ID = 1
 
-        self.ball_annotator = sv.TriangleAnnotator(
-            color=sv.Color.from_hex('#FFD700'),
-            base=20,
-            height=17
-        )
-
-        self.person_annotator = sv.EllipseAnnotator(
-            color=sv.ColorPalette.from_hex(['#00FF00']),
-            thickness=2
-        )
-
+        self.ball_annotator = sv.TriangleAnnotator(color=sv.Color.from_hex('#FFD700'), base=20, height=17)
+        self.person_annotator = sv.EllipseAnnotator(color=sv.ColorPalette.from_hex(['#00FF00']), thickness=2)
         self.label_annotator = sv.LabelAnnotator(
-            color=sv.Color.from_hex('#FF0000'),         # Red bounding box
-            text_color=sv.Color.from_hex('#000000'),     # Black text
+            color=sv.Color.from_hex('#FF0000'),
+            text_color=sv.Color.from_hex('#000000'),
             text_position=sv.Position.BOTTOM_CENTER,
-            text_scale=0.35,                             # Smaller text scale
-            text_thickness=1,                            # Thinner text
-            text_padding=2                              # Add a little padding around text
+            text_scale=0.35,
+            text_thickness=1,
+            text_padding=2
         )
 
-
-        self.tracker = sv.ByteTrack()
+        # NEW: Use OC-SORT for better ID consistency
+        self.tracker = OCSort()
         self.stats = PlayerStats(fps=self.fps)
 
     def detect(self, frame, conf_threshold=0.6):
         results = self.model.predict(frame, conf=conf_threshold)[0]
         return results
-    
+
     def ball_detection(self, detections):
         ball_detections = detections[detections.class_id == self.BALL_ID]
         if hasattr(ball_detections, "confidence") and len(ball_detections) > 0:
@@ -98,89 +85,81 @@ class ObjectTracking:
             if top_conf > 0.6:
                 return ball_detections[top_idx:top_idx+1]
         return sv.Detections.empty()
-    
+
     def player_detection(self, detections):
         conf_threshold = 0.75
         player_detections = detections[(detections.class_id == self.PLAYER_ID) & (detections.confidence >= conf_threshold)]
 
-        # Apply Non-Maximum Suppression (NMS)
+        # Apply NMS
         player_detections = player_detections.with_nms(threshold=0.75)
 
-        # Keep only top 23 players if needed
+        # Limit to 23 players if needed
         if len(player_detections) > 23:
             top_indices = np.argsort(-player_detections.confidence)[:23]
             player_detections = player_detections[top_indices]
 
-        # Update tracker and get the tracked detections
-        tracked_players = self.tracker.update_with_detections(player_detections)
-
-        return tracked_players
+        return player_detections
 
     def track_object(self, frame, frame_idx, homography):
         results = self.detect(frame)
         detections = sv.Detections.from_ultralytics(results)
 
         ball_detection = self.ball_detection(detections)
-        player_detection = self.player_detection(detections)
-        self.save_predictions(frame_idx, player_detection, ball_detection, save_dir="predictions")
+        player_detections = self.player_detection(detections)
 
+        # Combine ball and player detections for tracking
+        all_detections = player_detections + ball_detection
 
-        # Update player stats (speed)
-        self.stats.update(player_detection, homography, frame_idx)
+        # Update tracker
+        tracked_objects = self.tracker.update_with_detections(all_detections)
+
+        # Separate again
+        tracked_players = tracked_objects[tracked_objects.class_id == self.PLAYER_ID]
+        tracked_ball = tracked_objects[tracked_objects.class_id == self.BALL_ID]
+
+        self.save_predictions(frame_idx, tracked_players, tracked_ball, save_dir="predictions")
+
+        # Update player stats
+        self.stats.update(tracked_players, homography, frame_idx)
 
         labels = []
-        for tracker_id in player_detection.tracker_id:
+        for tracker_id in tracked_players.tracker_id:
             _, speed, _ = self.stats.compute_player_stats(tracker_id)
             labels.append(f"#{tracker_id} | {speed:.2f}")
 
         annotated_frame = frame.copy()
-        self.ball_annotator.annotate(annotated_frame, ball_detection)
-        self.person_annotator.annotate(annotated_frame, player_detection)
-        self.label_annotator.annotate(annotated_frame, player_detection, labels)
+        self.ball_annotator.annotate(annotated_frame, tracked_ball)
+        self.person_annotator.annotate(annotated_frame, tracked_players)
+        self.label_annotator.annotate(annotated_frame, tracked_players, labels)
 
         return annotated_frame
-    
-    def save_predictions(self, frame_idx, player_detections, ball_detection, save_dir):
-        """
-        Save player and ball detections to a file for later evaluation.
 
-        Args:
-            frame_idx (int): The index of the frame.
-            player_detections (sv.Detections): Player detections with tracking IDs.
-            ball_detection (sv.Detections): Ball detections.
-            save_dir (Path): Directory where to save the prediction files.
-        """
+    def save_predictions(self, frame_idx, player_detections, ball_detections, save_dir):
         save_dir = Path(save_dir)
         save_dir.mkdir(parents=True, exist_ok=True)
 
         lines = []
-
-        # Save players
         for xyxy, track_id, conf in zip(player_detections.xyxy, player_detections.tracker_id, player_detections.confidence):
             x1, y1, x2, y2 = xyxy
             w = x2 - x1
             h = y2 - y1
-            line = f"{frame_idx},-1,{x1:.2f},{y1:.2f},{w:.2f},{h:.2f},2,{conf:.4f},1"
+            line = f"{frame_idx},{track_id},{x1:.2f},{y1:.2f},{w:.2f},{h:.2f},2,{conf:.4f},1"
             lines.append(line)
 
-        # Save ball
-        for xyxy, conf in zip(ball_detection.xyxy, ball_detection.confidence):
+        for xyxy, track_id, conf in zip(ball_detections.xyxy, ball_detections.tracker_id, ball_detections.confidence):
             x1, y1, x2, y2 = xyxy
             w = x2 - x1
             h = y2 - y1
-            line = f"{frame_idx},-1,{x1:.2f},{y1:.2f},{w:.2f},{h:.2f},1,{conf:.4f},1"
+            line = f"{frame_idx},{track_id},{x1:.2f},{y1:.2f},{w:.2f},{h:.2f},1,{conf:.4f},1"
             lines.append(line)
 
-        # Save to file
         pred_file = save_dir / "predictions.txt"
         with open(pred_file, 'a') as f:
             f.write('\n'.join(lines) + '\n')
 
-
 class PitchDetection:
     def __init__(self):
         self.model = YOLO("src/pitch_keypoint_model/final_train/weights/best.pt")
-        self.model_id = "football-field-detection-f07vi/15"
         self.prev_homography = None
 
         self.vertex_annotator = sv.VertexAnnotator(

@@ -5,7 +5,7 @@ import cv2
 
 def frames_to_video():
     image_folder = 'output'
-    video_name = 'output.avi'  # Match codec with extension
+    video_name = 'output.mp4'  # Match codec with extension
     fps = 30  # Frames per second
 
     images = sorted([img for img in os.listdir(image_folder) if img.endswith(".jpg")])
@@ -20,7 +20,7 @@ def frames_to_video():
     print(f"Frame dimensions: {width}x{height}")
 
     # Important: Use correct codec for .avi
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     video = cv2.VideoWriter(video_name, fourcc, fps, (width, height))
 
     if not video.isOpened():
