@@ -1,0 +1,10 @@
+inference-sdk>=0.46.5
+matplotlib>=3.8.0,<3.9
+mplsoccer>=1.2.6
+numpy>=1.23.0,<=2.1.1  # Compatible with ultralytics 8.x
+opencv-python>=4.8.0,<5.0.0  # Stable 4.x series
+python-dotenv>=1.0.0
+supervision>=0.25.1,<1.0.0  # Stable 0.x series
+ultralytics>=8.1.0,<9.0.0  # Stable YOLOv8 version
+pandas>=1.5.3,<2.0.0  # Stable 1.x series
+torch>=2.0.0  # Required for ultralytics
