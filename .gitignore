@@ -1,2 +1,7 @@
 venv/
 src/__pycache__/
+ball_player_model/
+output/
+src/pitch_keypoint_model/
+src/rbk_detector/
+football-field-detection/

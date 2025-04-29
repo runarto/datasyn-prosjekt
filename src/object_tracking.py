@@ -10,7 +10,12 @@ from collections import defaultdict
 from src.player_stats import PlayerStats  # <-- Import PlayerStats
 import logging
 from pathlib import Path
-from supervision.tracking import OCSort 
+from ocsort.ocsort import OCSort
+import torch
+
+
+
+
 
 pitch_keypoints_meters = np.array([
     (0.000, 0.000),
@@ -104,58 +109,63 @@ class ObjectTracking:
         results = self.detect(frame)
         detections = sv.Detections.from_ultralytics(results)
 
+        # Separate ball and player detections
         ball_detection = self.ball_detection(detections)
         player_detections = self.player_detection(detections)
 
-        # Combine ball and player detections for tracking
-        all_detections = player_detections + ball_detection
+        # Combine ball + player detections for tracking
+        all_detections = []
 
-        # Update tracker
-        tracked_objects = self.tracker.update_with_detections(all_detections)
+        # Add players
+        for xyxy, conf in zip(player_detections.xyxy, player_detections.confidence):
+            x1, y1, x2, y2 = xyxy
+            all_detections.append([x1, y1, x2, y2, conf, self.PLAYER_ID])
 
-        # Separate again
-        tracked_players = tracked_objects[tracked_objects.class_id == self.PLAYER_ID]
-        tracked_ball = tracked_objects[tracked_objects.class_id == self.BALL_ID]
+        # Add ball
+        for xyxy, conf in zip(ball_detection.xyxy, ball_detection.confidence):
+            x1, y1, x2, y2 = xyxy
+            all_detections.append([x1, y1, x2, y2, conf, self.BALL_ID])
 
-        self.save_predictions(frame_idx, tracked_players, tracked_ball, save_dir="predictions")
 
-        # Update player stats
-        self.stats.update(tracked_players, homography, frame_idx)
 
-        labels = []
-        for tracker_id in tracked_players.tracker_id:
-            _, speed, _ = self.stats.compute_player_stats(tracker_id)
-            labels.append(f"#{tracker_id} | {speed:.2f}")
+        if len(all_detections) == 0:
+            # No detections, nothing to track
+            return frame
 
+        detections_np = np.array(all_detections)
+        clss = torch.tensor(np.array(all_detections)[:, 5], dtype=torch.int32)  # class ids as torch tensor
+
+        # Update OCSort tracker
+        tracks = self.tracker.update(detections_np, None, clss)
+
+
+        # tracks is (N, 6) array: [x1, y1, x2, y2, track_id, class_id]
         annotated_frame = frame.copy()
-        self.ball_annotator.annotate(annotated_frame, tracked_ball)
-        self.person_annotator.annotate(annotated_frame, tracked_players)
-        self.label_annotator.annotate(annotated_frame, tracked_players, labels)
+        labels = []
+
+        for track in tracks:
+            x1, y1, x2, y2, track_id, cls = track
+            x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
+            track_id = int(track_id)
+            cls = int(cls)
+
+            bbox = np.array([x1, y1, x2, y2])
+
+            if cls == self.PLAYER_ID:
+                self.person_annotator.annotate(annotated_frame, sv.Detections(xyxy=[bbox]))
+                _, speed, _ = self.stats.compute_player_stats(track_id)
+                labels.append(f"#{track_id} | {speed:.2f}")
+
+            if cls == self.BALL_ID:
+                self.ball_annotator.annotate(annotated_frame, sv.Detections(xyxy=[bbox]))
+
+        # Annotate player labels (if any)
+        if labels:
+            self.label_annotator.annotate(annotated_frame, sv.Detections(xyxy=[track[:4] for track in tracks if int(track[5]) == self.PLAYER_ID]), labels)
 
         return annotated_frame
 
-    def save_predictions(self, frame_idx, player_detections, ball_detections, save_dir):
-        save_dir = Path(save_dir)
-        save_dir.mkdir(parents=True, exist_ok=True)
 
-        lines = []
-        for xyxy, track_id, conf in zip(player_detections.xyxy, player_detections.tracker_id, player_detections.confidence):
-            x1, y1, x2, y2 = xyxy
-            w = x2 - x1
-            h = y2 - y1
-            line = f"{frame_idx},{track_id},{x1:.2f},{y1:.2f},{w:.2f},{h:.2f},2,{conf:.4f},1"
-            lines.append(line)
-
-        for xyxy, track_id, conf in zip(ball_detections.xyxy, ball_detections.tracker_id, ball_detections.confidence):
-            x1, y1, x2, y2 = xyxy
-            w = x2 - x1
-            h = y2 - y1
-            line = f"{frame_idx},{track_id},{x1:.2f},{y1:.2f},{w:.2f},{h:.2f},1,{conf:.4f},1"
-            lines.append(line)
-
-        pred_file = save_dir / "predictions.txt"
-        with open(pred_file, 'a') as f:
-            f.write('\n'.join(lines) + '\n')
 
 class PitchDetection:
     def __init__(self):

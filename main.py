@@ -39,30 +39,17 @@ def frames_to_video():
     video.release()
     print(f"Video saved as {video_name}")
 
+BASE_DIR = "/datasets/tdt4265/other/rbk"
+FINAL_VAL_DIR = os.path.join(BASE_DIR, '4_annotate_1min_bodo_start')
+OUTPUT_DIR = "output"
+WEIGHTS = "src/rbk_detector/aug_balls/weights/best.pt"
 
 def main():
-    hostname = socket.gethostname()
-    play_video = True
-
-    if "clab" in hostname:
-        input_file_path = "/datasets/tdt4265/other/rbk/3_test_1min_hamkam_from_start/img1"
-        ssh_mode = True
-    else:
-        input_file_path = os.path.expanduser("~/Downloads/3_test_1min_hamkam_from_start/img1")
-        ssh_mode = False
-
-    if play_video:
-        frames_to_video()
-        exit(0)
-
-    output_file_path = "output"
-    weights_path = "src/rbk_detector/aug_balls/weights/best.pt"
 
     processor = MatchProcessor(
-        input_dir=input_file_path,
-        output_dir=output_file_path,
-        weights_path=weights_path,
-        ssh_mode=ssh_mode,
+        input_dir=FINAL_VAL_DIR,
+        output_dir=OUTPUT_DIR,
+        weights_path=WEIGHTS,
     )
     processor.run()
 

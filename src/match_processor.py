@@ -10,6 +10,7 @@ class MatchProcessor:
         self.input_dir = Path(input_dir)
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.fps = 30
 
         self.tracker = ObjectTracking(image_folder=str(self.input_dir), weights=weights_path, ssh_mode=ssh_mode)
         self.pitch_detector = PitchDetection()
@@ -25,6 +26,8 @@ class MatchProcessor:
         return annotated_frame
 
     def run(self):
+
+        # Input is a video. We process each frame.
 
         for idx, path in enumerate(self.image_paths):
             frame = cv2.imread(str(path))
