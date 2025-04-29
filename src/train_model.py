@@ -123,40 +123,42 @@ class Train:
 
     def train_model(self):
         data_yaml = self.create_dataset_yaml()
-        model = YOLO("yolov8m.pt") 
+        weights = "/home/runarto/Documents/datasyn-prosjekt-final/ball_player_model/final_train4/weights/last.pt"
+        # model = YOLO(weights)  # Load the pre-trained model
 
-        # Train on the ball first:
+        # # Train on the ball first:
 
-        results = model.train(
-            data=data_yaml,
-            epochs=100,                     # Train for 100 epochs
-            batch=6,                        # Smaller batch size due to memory constraints
-            imgsz=1280,                      # Image size of 1280x1280
-            patience = 15,
-            plots=True,                     # Save plots of training metrics
-            device='0' if torch.cuda.is_available() else 'cpu',  # Use GPU if available
-            project='ball_player_model',    # Save outputs in a dedicated project folder
-            name='final_train',             # Training run name
-            classes=[0],                    # Only train on the ball class (class 0)
-            verbose=True,
-        )
+        # results = model.train(
+        #     data=data_yaml,
+        #     epochs=100,                     # Train for 100 epochs
+        #     batch=6,                        # Smaller batch size due to memory constraints
+        #     imgsz=1280,                      # Image size of 1280x1280
+        #     patience = 15,
+        #     plots=True,                     # Save plots of training metrics
+        #     device='0' if torch.cuda.is_available() else 'cpu',  # Use GPU if available
+        #     project='ball_player_model',    # Save outputs in a dedicated project folder
+        #     name='final_train',             # Training run name
+        #     classes=[0],                    # Only train on the ball class (class 0)
+        #     verbose=True,
+        # )
 
-        # Train on both classes (ball and player):
+        # # Train on both classes (ball and player):
 
-        weights = results.best_model  # Use the best model from the previous training
+        weights = "/home/runarto/Documents/datasyn-prosjekt-final/ball_player_model/final_train4/weights/last.pt"
         model = YOLO(weights)
         results = model.train(
             data=data_yaml,
             epochs=100,                     # Train for 100 epochs
-            batch=6,                        # Smaller batch size due to memory constraints
+            batch=8,                        # Smaller batch size due to memory constraints
             imgsz=1280,                      # Image size of 1280x1280
             patience = 25,
             plots=True,                     # Save plots of training metrics
             device='0' if torch.cuda.is_available() else 'cpu',  # Use GPU if available
             project='ball_player_model',    # Save outputs in a dedicated project folder
-            name='final_train',             # Training run name
+            name='final_train_both',             # Training run name
             classes=[0, 1],                 # Train on both classes (ball and player)
-            verbose=True
+            verbose=True,
+            cache=True,                # Cache images for faster training   
         )
 
 

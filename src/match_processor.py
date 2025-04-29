@@ -26,33 +26,33 @@ class MatchProcessor:
         return annotated_frame
 
     def run(self):
+        cap = cv2.VideoCapture(self.input_dir)
 
-        # Input is a video. We process each frame.
-
-        for idx, path in enumerate(self.image_paths):
-            frame = cv2.imread(str(path))
-            if frame is None:
-                print(f"[WARN] Could not read image: {path}")
-                continue
-
-            annotated = self.process_frame(frame, idx)
-            output_path = self.output_dir / path.name
-            cv2.imwrite(str(output_path), annotated)
-
-
-    def play_video (self, video_path):
-        cap = cv2.VideoCapture(str(video_path))
         if not cap.isOpened():
-            print(f"[ERROR] Could not open video file: {video_path}")
+            print(f"[ERROR] Could not open video: {self.input_dir}")
             return
+
+        # Video properties
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # or 'XVID', 'avc1', etc.
+
+        # Output video path
+        output_video_path = self.output_dir / f"{Path(self.input_dir).stem}_annotated.mp4"
+        out = cv2.VideoWriter(str(output_video_path), fourcc, fps, (width, height))
+
+        frame_idx = 0
 
         while True:
             ret, frame = cap.read()
             if not ret:
                 break
-            cv2.imshow("Video", frame)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+
+            annotated = self.process_frame(frame, frame_idx)
+            out.write(annotated)
+            frame_idx += 1
 
         cap.release()
-        cv2.destroyAllWindows()
+        out.release()
+        print(f"[INFO] Finished processing. Saved annotated video to {output_video_path}")

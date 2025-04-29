@@ -10,11 +10,8 @@ from collections import defaultdict
 from src.player_stats import PlayerStats  # <-- Import PlayerStats
 import logging
 from pathlib import Path
-from ocsort.ocsort import OCSort
+from supervision.tracking import BoTSORT
 import torch
-
-
-
 
 
 pitch_keypoints_meters = np.array([
@@ -52,6 +49,7 @@ pitch_keypoints_meters = np.array([
     (30.692, 33.500)
 ], dtype=np.float32)
 
+#TODO: Fix the tracker. It does not work right now. Goal is to maintain consistent ID throughout the video.
 
 class ObjectTracking:
     def __init__(self, image_folder, weights='rbk_detector/aug_balls/weights/best.pt', ssh_mode=False):
@@ -87,7 +85,7 @@ class ObjectTracking:
         if hasattr(ball_detections, "confidence") and len(ball_detections) > 0:
             top_idx = np.argmax(ball_detections.confidence)
             top_conf = ball_detections.confidence[top_idx]
-            if top_conf > 0.6:
+            if top_conf > 0.7:
                 return ball_detections[top_idx:top_idx+1]
         return sv.Detections.empty()
 
@@ -98,7 +96,6 @@ class ObjectTracking:
         # Apply NMS
         player_detections = player_detections.with_nms(threshold=0.75)
 
-        # Limit to 23 players if needed
         if len(player_detections) > 23:
             top_indices = np.argsort(-player_detections.confidence)[:23]
             player_detections = player_detections[top_indices]
@@ -126,10 +123,7 @@ class ObjectTracking:
             x1, y1, x2, y2 = xyxy
             all_detections.append([x1, y1, x2, y2, conf, self.BALL_ID])
 
-
-
         if len(all_detections) == 0:
-            # No detections, nothing to track
             return frame
 
         detections_np = np.array(all_detections)
