@@ -20,7 +20,7 @@ TRAIN_DIR = [
 ]
 
 VAL_DIR = [os.path.join(BASE_DIR, '2_train-val_1min_after_goal')]
-TEST_DIR = [os.path.join(BASE_DIR, '3_test_1min_aalesund_from_start')]
+TEST_DIR = [os.path.join(BASE_DIR, '3_test_1min_hamkam_from_start')]
 FINAL_VAL_DIR = os.path.join(BASE_DIR, '4_annotate_1min_bodo_start')
 
 
@@ -92,6 +92,7 @@ class Train:
             img_dir = os.path.join(dataset_dir, 'img1')
             label_dir = os.path.join(dataset_dir, 'gt')
 
+            print(f"Directory exists? {os.path.exists(img_dir)}")
             for img_path in glob(f"{img_dir}/*.jpg"):
                 shutil.copy(img_path, os.path.join(SRC_DIR, 'images/test'))
 
@@ -122,53 +123,88 @@ class Train:
 
 
     def train_model(self):
+                # Start from COCO-pretrained YOLOv8m
         data_yaml = self.create_dataset_yaml()
-        weights = "/home/runarto/Documents/datasyn-prosjekt-final/ball_player_model/final_train4/weights/last.pt"
-        # model = YOLO(weights)  # Load the pre-trained model
+        device = '0' if torch.cuda.is_available() else 'cpu'
+        model = YOLO('yolov8x.pt')
 
-        # # Train on the ball first:
-
-        # results = model.train(
-        #     data=data_yaml,
-        #     epochs=100,                     # Train for 100 epochs
-        #     batch=6,                        # Smaller batch size due to memory constraints
-        #     imgsz=1280,                      # Image size of 1280x1280
-        #     patience = 15,
-        #     plots=True,                     # Save plots of training metrics
-        #     device='0' if torch.cuda.is_available() else 'cpu',  # Use GPU if available
-        #     project='ball_player_model',    # Save outputs in a dedicated project folder
-        #     name='final_train',             # Training run name
-        #     classes=[0],                    # Only train on the ball class (class 0)
-        #     verbose=True,
-        # )
-
-        # # Train on both classes (ball and player):
-
-        weights = "/home/runarto/Documents/datasyn-prosjekt-final/ball_player_model/final_train4/weights/last.pt"
-        model = YOLO(weights)
-        results = model.train(
+        model.train(
             data=data_yaml,
-            epochs=100,                     # Train for 100 epochs
-            batch=8,                        # Smaller batch size due to memory constraints
-            imgsz=1280,                      # Image size of 1280x1280
-            patience = 25,
-            plots=True,                     # Save plots of training metrics
-            device='0' if torch.cuda.is_available() else 'cpu',  # Use GPU if available
-            project='ball_player_model',    # Save outputs in a dedicated project folder
-            name='final_train_both',             # Training run name
-            classes=[0, 1],                 # Train on both classes (ball and player)
-            verbose=True,
-            cache=True,                # Cache images for faster training   
+            epochs=80,                   # ample epochs to master ball
+            batch=6,                     # fit in GPU memory at 1280px
+            imgsz=1280,                  # high resolution for small ball
+            device=device,
+            project='ball_player_model', # base folder
+            name='phase1_ball',          # sub-folder for this run
+            exist_ok=True,               # reuse if already exists
+            classes=[0],                 # only the ball class
+            lr0=0.001,                   # lower than default to fine-tune
+            cos_lr=True,                 # cosine decay schedule
+            warmup_epochs=5,             # ramp LR over first few epochs
+            patience=15,                 # early stop if no gain for 15 epochs
+            save_period=5,               # checkpoint every 5 epochs
+            cache=True,                  # speed up I/O
+            # realistic “football” augmentations
+            hsv_h=0.015, hsv_s=0.7, hsv_v=0.4,
+            translate=0.1, scale=0.5, fliplr=0.5,
+            mosaic=1.0, mixup=0.0,       # heavy mosaic early, no mixup
+        )
+
+        # Load the best ball-only weights
+        best_ball = 'runs/ball_player_model/phase1_ball/weights/best.pt'
+        model = YOLO(best_ball)
+
+        # ------------------------------------------------------------------------------
+        # Phase 2: Multi-class fine-tuning (ball + players)
+        # ------------------------------------------------------------------------------
+
+        model.train(
+            data=data_yaml,
+            epochs=120,                  # more epochs for full task
+            batch=8,
+            imgsz=1280,
+            device=device,
+            project='ball_player_model',
+            name='phase2_full',
+            exist_ok=True,
+            classes=[0, 1],              # ball + player
+            lr0=0.0005,                  # lower LR to avoid forgetting ball
+            cos_lr=True,
+            warmup_epochs=2,             # shorter warmup when fine-tuning
+            patience=25,                 # allow more patience now
+            save_period=5,
+            cache=True,
+            # keep same realistic augmentations, but turn off mosaic
+            hsv_h=0.015, hsv_s=0.7, hsv_v=0.4,
+            translate=0.1, scale=0.5, fliplr=0.5,
+            mosaic=0.0, mixup=0.0,
         )
 
 
-        print("✅ Training complete. Model saved in:", results.save_dir)
+    def evaluate_model(self, weights):
+        data_yaml = self.create_dataset_yaml()
+        model = YOLO(weights)
+        results = model.val(
+            data=data_yaml,  # path to your dataset config
+            split="test",          # test/val/train
+            imgsz=640,             # image size used during validation
+            conf=0.001,            # confidence threshold (default: 0.001)
+            iou=0.6,               # IoU threshold for mAP (default: 0.6)
+            plots=True,            # save precision-recall curves, confusion matrix etc.
+            save_json=True,        # export COCO-format predictions
+            save_hybrid=False,     # save hybrid labels (labels + predictions)
+            half=True,             # use half precision (if supported)
+            device=0               # set device, e.g., 'cpu', 0, 1
+        )
+        print("✅ Evaluation complete. Results saved in:", results.save_dir)
+
 
 
 if __name__ == "__main__":
 
     train = Train()
+    weights = "ball_player_model/best.pt"
     train.prepare_data_structrue()
-    train.train_model()
+    train.evaluate_model(weights)
 
     
