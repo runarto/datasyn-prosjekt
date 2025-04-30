@@ -12,8 +12,15 @@ import torch
 import time
 from helpers.helper import to_yolo_format
 
-SRC_DIR = "/work/runarto/data"
-BASE_DIR = '/datasets/tdt4265/other/rbk/'
+IDUN = True
+if IDUN:
+    # If running on IDUN, set the SRC_DIR to the appropriate path
+    SRC_DIR = os.path.join(os.path.dirname(__file__), "data")
+    BASE_DIR = '/cluster/projects/vc/data/other/open/RBK_TDT17'
+else:
+    SRC_DIR = "/work/runarto/data"
+    BASE_DIR = '/datasets/tdt4265/other/rbk/'
+
 TRAIN_DIR = [
     os.path.join(BASE_DIR, '1_train-val_1min_aalesund_from_start'),
     os.path.join(BASE_DIR, '2_train-val_1min_after_goal')
