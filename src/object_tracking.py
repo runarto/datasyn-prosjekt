@@ -134,8 +134,6 @@ class Track:
 
     def track_object(self, frame, frame_idx):
 
-        _, frame = self.pitch_detector.detect_and_annotate(frame)
-
         results = self.detect(frame)
         detections = sv.Detections.from_ultralytics(results)
         ball_detection = self.ball_detection(frame, detections)

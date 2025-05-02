@@ -1,9 +1,9 @@
 import os
-import socket
 from src.match_processor import MatchProcessor
 import cv2
 import shutil
-from glob import glob
+from src.train_model import Train
+
 
 def frames_to_video():
     image_folder = 'output'
@@ -42,15 +42,12 @@ def frames_to_video():
     print(f"Video saved as {video_name}")
 
 
-#BASE_DIR = "/work/runarto/data/video"
-#OUTPUT_DIR = "output"
-#WEIGHTS = "/home/runarto/Documents/datasyn-prosjekt-final/src/ball_player_model/phase2_full/weights/best.pt"
-#VIDEO_TOANNOTEATE = os.path.join(BASE_DIR, "4_annotate_1min_bodo_start.mp4")
+# --- USER ---
+USER = os.getlogin()
 
 # --- Paths ---
-BASE_DIR = "/work/runarto/data/video"
+BASE_DIR = f"/work/{USER}/data/video"
 OUTPUT_DIR = "output"
-WEIGHTS = "/home/runarto/Documents/datasyn-prosjekt-final/src/ball_player_model/phase2_full/weights/best.pt"
 
 # Source video (on shared dataset storage)
 SOURCE_VIDEO = "/datasets/tdt4265/other/rbk/4_annotate_1min_bodo_start/4_annotate_1min_bodo_start.mp4"
@@ -69,6 +66,14 @@ else:
 
 
 def main():
+
+    # Make sure the paths are correct
+    train = False
+    if train:
+        trainer = Train()
+        trainer.run()
+
+    WEIGHTS = f"/home/{USER}/Documents/datasyn-prosjekt-final/src/ball_player_model/phase2_full/weights/best.pt"
 
     processor = MatchProcessor(
         video=VIDEO_TO_ANNOTATE,
