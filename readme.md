@@ -8,18 +8,19 @@ This project is focused on training and evaluating machine learning models for o
 
 ## 📁 Project Structure
 
+```text
 datasyn-prosjekt-final/
 ├── src/                   # Core project modules
 │   ├── train_model.py     # YOLO model training
 │   ├── object_tracking.py # Object detection and tracking
 │   ├── match_processor.py # Match orchestration and pipeline logic
 │   └── helpers/           # Utility functions (data conversion, etc.)
-│       ├── helpers.py     # Helper funcions
+│       ├── helpers.py     # Helper functions
 ├── main.py                # Main entry point to run the pipeline
 ├── requirements.txt       # Python dependencies
 └── README.md              # Project documentation
 
-
+```
 ---
 
 ## Features
