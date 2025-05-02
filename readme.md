@@ -57,9 +57,9 @@ datasyn-prosjekt-final/
 
 ## How to Run
 
-1. If this is your **first time running the project**, open `main.py` and set the `TRAIN` flag to `True` to train the detection model:
+1. If this is your **first time running the project**, open `main.py` and set the `train` flag to `True` to train the detection model:
    ```python
-   TRAIN = True
+   train = True
 
 2. From the root directory of the project, do:
    ```bash
