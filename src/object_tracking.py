@@ -4,6 +4,8 @@ import numpy as np
 import supervision as sv
 from src.player_stats import PlayerStats
 import logging
+from types import SimpleNamespace
+from ultralytics.trackers.byte_tracker import BYTETracker
 
 pitch_keypoints_meters = np.array(
     [
@@ -43,163 +45,222 @@ pitch_keypoints_meters = np.array(
     dtype=np.float32,
 )
 
-class ObjectTracking:
-    def __init__(
-        self,
-        image_folder,
-        weights="rbk_detector/aug_balls/weights/best.pt",
-        ssh_mode=False,
-    ):
-        self.image_folder = image_folder
-        self.model = YOLO(weights)        # your detection model
-        self.ssh_mode = ssh_mode
+
+
+
+import numpy as np
+from ultralytics import YOLO
+import supervision as sv
+import cv2
+from filterpy.kalman import KalmanFilter
+from src.player_stats import PlayerStats  # assumes you have this module
+
+class Track:
+    def __init__(self, weights='rbk_detector/aug_balls/weights/best.pt'):
+        self.model = YOLO(weights)
         self.fps = 30
 
-        # class IDs in your model
         self.BALL_ID = 0
         self.PLAYER_ID = 1
 
-        # drawing helpers
         self.ball_annotator = sv.TriangleAnnotator(
-            color=sv.Color.from_hex("#FFD700"), base=20, height=17
+            color=sv.Color.from_hex('#FFD700'), base=20, height=17
         )
+
         self.person_annotator = sv.EllipseAnnotator(
-            color=sv.ColorPalette.from_hex(["#00FF00"]), thickness=2
+            color=sv.ColorPalette.from_hex(['#00FF00']), thickness=2
         )
+
         self.label_annotator = sv.LabelAnnotator(
-            color=sv.Color.from_hex("#FF0000"),
-            text_color=sv.Color.from_hex("#000000"),
+            color=sv.Color.from_hex('#FF0000'),
+            text_color=sv.Color.from_hex('#000000'),
             text_position=sv.Position.BOTTOM_CENTER,
             text_scale=0.35,
             text_thickness=1,
-            text_padding=2,
+            text_padding=2
         )
 
-        # stats tracker for speed, etc.
+        self.tracker = sv.ByteTrack(lost_track_buffer=50)
         self.stats = PlayerStats(fps=self.fps)
 
-    def track_object(self, frame, frame_idx, homography):
-        """
-        Detects & tracks players + ball in a single frame, then annotates.
-        Uses Ultralytics’ built-in BoT-SORT tracker for ID consistency.
-        """
-        # Run detection + BoT-SORT in one call
-        results = self.model.track(
-            source=[frame],           # single image
-            tracker="botsort.yaml",   # use the official BoT-SORT config
-            conf=0.6,                 # same minimum confidence
-            show=False                # we’ll handle drawing ourselves
-        )[0]
+        # Kalman Filter for ball tracking
+        self.kf = KalmanFilter(dim_x=4, dim_z=2)
+        self.kf.F = np.array([[1, 0, 1, 0],
+                              [0, 1, 0, 1],
+                              [0, 0, 1, 0],
+                              [0, 0, 0, 1]])
+        self.kf.H = np.array([[1, 0, 0, 0],
+                              [0, 1, 0, 0]])
+        self.kf.P *= 1000
+        self.kf.R *= 5
+        self.kf.Q *= 0.01
+        self.kf_initialized = False
 
-        # Extract boxes, track IDs, and classes
-        boxes   = results.boxes.xyxy.cpu().numpy()        # shape: [N,4]
-        ids     = results.boxes.id.cpu().numpy().astype(int)   # shape: [N]
-        classes = results.boxes.cls.cpu().numpy().astype(int)  # shape: [N]
+    def detect(self, frame, conf_threshold=0.6):
+        return self.model.predict(frame, conf=conf_threshold, imgsz=1280)[0]
 
+    def ball_detection(self, detections):
+        ball_detections = detections[detections.class_id == self.BALL_ID]
+        if hasattr(ball_detections, "confidence") and len(ball_detections) > 0:
+            top_idx = np.argmax(ball_detections.confidence)
+            top_conf = ball_detections.confidence[top_idx]
+            if top_conf > 0.6:
+                return ball_detections[top_idx:top_idx+1]
+        return sv.Detections.empty()
+
+    def player_detection(self, detections):
+        conf_threshold = 0.75
+        player_detections = detections[(detections.class_id == self.PLAYER_ID) & (detections.confidence >= conf_threshold)]
+        player_detections = player_detections.with_nms(threshold=0.75)
+        if len(player_detections) > 23:
+            top_indices = np.argsort(-player_detections.confidence)[:23]
+            player_detections = player_detections[top_indices]
+        return self.tracker.update_with_detections(player_detections)
+
+    def update_kalman(self, detection):
+        if detection is not None and len(detection.xyxy) > 0:
+            x1, y1, x2, y2 = detection.xyxy[0]
+            cx = (x1 + x2) / 2
+            cy = (y1 + y2) / 2
+            z = np.array([cx, cy])
+            if not self.kf_initialized:
+                self.kf.x = np.array([cx, cy, 0, 0])
+                self.kf_initialized = True
+            self.kf.predict()
+            self.kf.update(z)
+        else:
+            self.kf.predict()
+
+        # Return prediction as a bbox
+        cx, cy = self.kf.x[0], self.kf.x[1]
+        size = 10  # for visualization
+        return np.array([[cx - size, cy - size, cx + size, cy + size]])
+
+    def track_object(self, frame, frame_idx):
+        results = self.detect(frame)
+        detections = sv.Detections.from_ultralytics(results)
+
+        ball_det = self.ball_detection(detections)
+        tracked_players = self.player_detection(detections)
+
+        # Update Kalman filter for ball
+        predicted_ball = self.update_kalman(ball_det)
+        tracked_ball = sv.Detections(
+            xyxy=predicted_ball,
+            confidence=np.array([1.0]),
+            class_id=np.array([self.BALL_ID])
+        )
+
+        # Annotate
         annotated = frame.copy()
+        self.ball_annotator.annotate(annotated, tracked_ball)
 
-        for (x1, y1, x2, y2), track_id, cls in zip(boxes, ids, classes):
-            bbox = np.array([int(x1), int(y1), int(x2), int(y2)])
-
-            if cls == self.PLAYER_ID:
-                # draw player ellipse
-                self.person_annotator.annotate(
-                    annotated, sv.Detections(xyxy=[bbox])
-                )
-
-                # compute & draw speed label
-                _, speed, _ = self.stats.compute_player_stats(track_id)
-                label = f"#{track_id} | {speed:.2f}"
-                self.label_annotator.annotate(
-                    annotated,
-                    sv.Detections(xyxy=[bbox]),
-                    [label]
-                )
-
-            elif cls == self.BALL_ID:
-                # draw ball triangle
-                self.ball_annotator.annotate(
-                    annotated, sv.Detections(xyxy=[bbox])
-                )
+        # Annotate players and IDs
+        if len(tracked_players.xyxy) > 0:
+            self.person_annotator.annotate(annotated, tracked_players)
+            labels = [f"#{tid}" for tid in tracked_players.tracker_id]
+            self.label_annotator.annotate(annotated, tracked_players, labels)
 
         return annotated
 
 
-class PitchDetection:
-    def __init__(self):
-        self.model = YOLO("src/pitch_keypoint_model/final_train/weights/best.pt")
-        self.prev_homography = None
 
+
+class PitchDetection:
+    def __init__(self, smoothing: float = 0.7):
+        """
+        PitchDetection handles football pitch keypoint detection and homography estimation.
+        :param smoothing: Exponential smoothing factor for homography updates (0 < smoothing <= 1).
+        """
+        self.model = YOLO(
+            '/home/runarto/Documents/datasyn-prosjekt-final/src/pitch_keypoint_model/final_train/weights/best.pt'
+        )
+        self.prev_homography = None
+        self.smoothing = smoothing  # weight for new homography in smoothing
+
+        # Annotator for debugging keypoints
         self.vertex_annotator = sv.VertexAnnotator(
-            color=sv.Color.from_hex("#FF0000"), radius=8
+            color=sv.Color.from_hex('#FF0000'), radius=8
         )
 
+        # Real-world coordinates of pitch keypoints (same order as model outputs)
         self.world_reference_points = pitch_keypoints_meters.copy()
 
-    def annotate_keypoints(self, frame, keypoints, min_confidence=0.3):
+    def annotate_keypoints(self, frame: np.ndarray, keypoints: sv.KeyPoints, min_confidence=0.3) -> np.ndarray:
+        """Draw high-confidence keypoints on the frame."""
         annotated = frame.copy()
         xy = keypoints.xy[0]
         conf = keypoints.confidence[0]
-
         for i, (pt, c) in enumerate(zip(xy, conf)):
             if c > min_confidence:
                 x, y = int(pt[0]), int(pt[1])
                 cv2.circle(annotated, (x, y), 6, (0, 0, 255), -1)
                 cv2.putText(
-                    annotated,
-                    str(i),
-                    (x + 5, y - 5),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5,
-                    (255, 255, 0),
-                    1,
-                    cv2.LINE_AA,
+                    annotated, str(i), (x+5, y-5),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,0), 1
                 )
         return annotated
 
-    def detect_pitch(self, frame):
-        result = self.model(frame, verbose=False)[0]
-        keypoints = sv.KeyPoints.from_ultralytics(result)
-        return keypoints
+    def detect_pitch(self, frame: np.ndarray) -> sv.KeyPoints:
+        """Run keypoint model and return KeyPoints object."""
+        result = self.model(frame, verbose=False)
+        return sv.KeyPoints.from_ultralytics(result)
 
-    def compute_homography(self, keypoints, min_confidence=0.8):
+    def compute_homography(
+        self, keypoints: sv.KeyPoints,
+        min_confidence: float = 0.8,
+        collinearity_thresh: float = 1.0
+    ) -> tuple[np.ndarray, bool]:
+        """
+        Compute and smooth homography; fallback if insufficient or collinear.
+        Returns (H, used_fallback).
+        """
+        # No keypoints
         if keypoints is None or len(keypoints.xy) == 0:
-            logging.warning("[WARN] No keypoints detected; using previous homography.")
+            logging.warning('[WARN] No keypoints; using previous homography.')
             return self.prev_homography, True
-        xy = keypoints.xy[0]  # shape: [N, 2]
-        conf = keypoints.confidence[0].flatten()  # shape: [N,]
-
-        # Find all indices whose confidence exceeds threshold
-        valid_indices = np.where(conf > min_confidence)[0]
-
-        # Need at least 4 points to solve homography
-        if len(valid_indices) < 4:
-            # not enough points → fallback
+        xy = keypoints.xy[0]
+        conf = keypoints.confidence[0].flatten()
+        # Filter by confidence
+        idx = np.where(conf > min_confidence)[0]
+        if len(idx) < 4:
+            logging.warning(f'[WARN] Only {len(idx)} strong keypoints; need >=4. Fallback.')
             return self.prev_homography, True
-
-        try:
-            image_points = xy[valid_indices].astype(np.float32)
-            world_points = self.world_reference_points[valid_indices].astype(np.float32)
-        except IndexError:
-            logging.error(
-                f"[ERROR] Keypoint/world‐point size mismatch:"
-                f" got {xy.shape[0]} keypoints but {len(self.world_reference_points)} world refs"
-            )
+        img_pts = xy[idx].astype(np.float32)
+        world_pts = self.world_reference_points[idx].astype(np.float32)
+        # Check non-collinearity via convex hull area
+        hull = cv2.convexHull(img_pts)
+        area = cv2.contourArea(hull)
+        if area < collinearity_thresh:
+            logging.warning(f'[WARN] Keypoints nearly collinear (area={area:.2f}); fallback.')
             return self.prev_homography, True
-
-        # RANSAC homography using *all* high-confidence correspondences
-        H, _ = cv2.findHomography(image_points, world_points, cv2.RANSAC)
-
-        # Validate result
-        if H is not None and not np.isnan(H).any() and abs(np.linalg.det(H)) > 1e-6:
-            self.prev_homography = H
-            return H, False
+        # RANSAC homography
+        H_new, mask = cv2.findHomography(img_pts, world_pts, cv2.RANSAC)
+        # Validate
+        if H_new is None or np.isnan(H_new).any() or abs(np.linalg.det(H_new)) < 1e-6:
+            logging.warning('[WARN] Invalid homography; fallback.')
+            return self.prev_homography, True
+        # Smooth
+        if self.prev_homography is None:
+            H = H_new
         else:
-            logging.warning("[WARN] Homography unstable/invalid; using previous.")
-            return self.prev_homography, True
+            H = self.smoothing * H_new + (1 - self.smoothing) * self.prev_homography
+        self.prev_homography = H
+        return H, False
 
-    def get_homography(self, frame):
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        keypoints = self.detect_pitch(rgb_frame)
-        H, used_fallback = self.compute_homography(keypoints)
-        return H, used_fallback
+    def get_homography(self, frame: np.ndarray) -> tuple[np.ndarray, bool]:
+        """Public: detect keypoints and compute homography."""
+        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        kps = self.detect_pitch(rgb)
+        return self.compute_homography(kps)
+
+
+
+def get_center_of_bbox(bbox):
+    x1, y1, x2, y2 = bbox
+    x_center = int((x1 + x2) / 2)
+    y_center = int((y1 + y2) / 2)
+    return x_center, y_center
+
+def get_bbox_width(bbox):
+    return bbox[2] - bbox[0]

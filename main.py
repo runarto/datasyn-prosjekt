@@ -2,6 +2,8 @@ import os
 import socket
 from src.match_processor import MatchProcessor
 import cv2
+import shutil
+from glob import glob
 
 def frames_to_video():
     image_folder = 'output'
@@ -39,15 +41,37 @@ def frames_to_video():
     video.release()
     print(f"Video saved as {video_name}")
 
-BASE_DIR = "/datasets/tdt4265/other/rbk"
-FINAL_VAL_DIR = os.path.join(BASE_DIR, '4_annotate_1min_bodo_start')
+
+#BASE_DIR = "/work/runarto/data/video"
+#OUTPUT_DIR = "output"
+#WEIGHTS = "/home/runarto/Documents/datasyn-prosjekt-final/src/ball_player_model/phase2_full/weights/best.pt"
+#VIDEO_TOANNOTEATE = os.path.join(BASE_DIR, "4_annotate_1min_bodo_start.mp4")
+
+# --- Paths ---
+BASE_DIR = "/work/runarto/data/video"
 OUTPUT_DIR = "output"
-WEIGHTS = "src/rbk_detector/aug_balls/weights/best.pt"
+WEIGHTS = "/home/runarto/Documents/datasyn-prosjekt-final/src/ball_player_model/phase2_full/weights/best.pt"
+
+# Source video (on shared dataset storage)
+SOURCE_VIDEO = "/datasets/tdt4265/other/rbk/4_annotate_1min_bodo_start/4_annotate_1min_bodo_start.mp4"
+
+# Target video (local working directory)
+VIDEO_FILENAME = os.path.basename(SOURCE_VIDEO)
+VIDEO_TO_ANNOTATE = os.path.join(BASE_DIR, VIDEO_FILENAME)
+
+# --- Ensure video is copied ---
+os.makedirs(BASE_DIR, exist_ok=True)
+if not os.path.exists(VIDEO_TO_ANNOTATE):
+    print(f"[INFO] Copying video from {SOURCE_VIDEO} to {VIDEO_TO_ANNOTATE}...")
+    shutil.copy2(SOURCE_VIDEO, VIDEO_TO_ANNOTATE)
+else:
+    print(f"[INFO] Video already exists at {VIDEO_TO_ANNOTATE}")
+
 
 def main():
 
     processor = MatchProcessor(
-        input_dir=FINAL_VAL_DIR,
+        video=VIDEO_TO_ANNOTATE,
         output_dir=OUTPUT_DIR,
         weights_path=WEIGHTS,
     )
