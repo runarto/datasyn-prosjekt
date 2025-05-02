@@ -5,3 +5,4 @@ output/
 src/pitch_keypoint_model/
 src/rbk_detector/
 football-field-detection/
+src/runs/

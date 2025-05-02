@@ -12,7 +12,7 @@ import torch
 import time
 from helpers.helper import to_yolo_format
 
-IDUN = True
+IDUN = False
 if IDUN:
     # If running on IDUN, set the SRC_DIR to the appropriate path
     SRC_DIR = os.path.join(os.path.dirname(__file__), "data")
@@ -133,32 +133,32 @@ class Train:
                 # Start from COCO-pretrained YOLOv8m
         data_yaml = self.create_dataset_yaml()
         device = '0' if torch.cuda.is_available() else 'cpu'
-        model = YOLO('yolov8x.pt')
+        # last_weights = "ball_player_model/phase1_ball/weights/last.pt"
+        # model = YOLO(last_weights)
 
-        model.train(
-            data=data_yaml,
-            epochs=80,                   # ample epochs to master ball
-            batch=6,                     # fit in GPU memory at 1280px
-            imgsz=1280,                  # high resolution for small ball
-            device=device,
-            project='ball_player_model', # base folder
-            name='phase1_ball',          # sub-folder for this run
-            exist_ok=True,               # reuse if already exists
-            classes=[0],                 # only the ball class
-            lr0=0.001,                   # lower than default to fine-tune
-            cos_lr=True,                 # cosine decay schedule
-            warmup_epochs=5,             # ramp LR over first few epochs
-            patience=15,                 # early stop if no gain for 15 epochs
-            save_period=5,               # checkpoint every 5 epochs
-            cache=True,                  # speed up I/O
-            # realistic “football” augmentations
-            hsv_h=0.015, hsv_s=0.7, hsv_v=0.4,
-            translate=0.1, scale=0.5, fliplr=0.5,
-            mosaic=1.0, mixup=0.0,       # heavy mosaic early, no mixup
-        )
+        # model.train(
+        #     data=data_yaml,
+        #     epochs=80,                   # ample epochs to master ball
+        #     batch=4,                     # fit in GPU memory at 1280px
+        #     imgsz=1280,                  # high resolution for small ball
+        #     device=device,
+        #     project='ball_player_model', # base folder
+        #     name='phase1_ball',          # sub-folder for this run
+        #     exist_ok=True,               # reuse if already exists
+        #     classes=[0],                 # only the ball class
+        #     lr0=0.001,                   # lower than default to fine-tune
+        #     cos_lr=True,                 # cosine decay schedule
+        #     warmup_epochs=5,             # ramp LR over first few epochs
+        #     patience=15,                 # early stop if no gain for 15 epochs
+        #     cache=True,                  # speed up I/O
+        #     # realistic “football” augmentations
+        #     hsv_h=0.015, hsv_s=0.7, hsv_v=0.4,
+        #     translate=0.1, scale=0.5, fliplr=0.5,
+        #     mosaic=1.0, mixup=0.0,       # heavy mosaic early, no mixup
+        # )
 
         # Load the best ball-only weights
-        best_ball = 'runs/ball_player_model/phase1_ball/weights/best.pt'
+        best_ball = 'ball_player_model/phase1_ball/weights/best.pt'
         model = YOLO(best_ball)
 
         # ------------------------------------------------------------------------------
@@ -168,7 +168,7 @@ class Train:
         model.train(
             data=data_yaml,
             epochs=120,                  # more epochs for full task
-            batch=8,
+            batch=6,
             imgsz=1280,
             device=device,
             project='ball_player_model',
@@ -179,7 +179,6 @@ class Train:
             cos_lr=True,
             warmup_epochs=2,             # shorter warmup when fine-tuning
             patience=25,                 # allow more patience now
-            save_period=5,
             cache=True,
             # keep same realistic augmentations, but turn off mosaic
             hsv_h=0.015, hsv_s=0.7, hsv_v=0.4,
@@ -194,10 +193,11 @@ class Train:
         results = model.val(
             data=data_yaml,  # path to your dataset config
             split="test",          # test/val/train
-            imgsz=640,             # image size used during validation
+            imgsz=1280,             # image size used during validation
             conf=0.001,            # confidence threshold (default: 0.001)
             iou=0.6,               # IoU threshold for mAP (default: 0.6)
             plots=True,            # save precision-recall curves, confusion matrix etc.
+            classes = [0, 1],
             save_json=True,        # export COCO-format predictions
             save_hybrid=False,     # save hybrid labels (labels + predictions)
             half=True,             # use half precision (if supported)
@@ -205,13 +205,31 @@ class Train:
         )
         print("✅ Evaluation complete. Results saved in:", results.save_dir)
 
+    def evaluate_pitch_keypoint_model(self):
+        data_yaml = "/home/runarto/Documents/datasyn-prosjekt-final/football-field-detection/data.yaml"
+        model = YOLO("pitch_keypoint_model/final_train/weights/best.pt")
+        results = model.val(
+            data=data_yaml,
+            split="test",
+            imgsz=640,
+            conf=0.001,
+            iou=0.6,
+            plots=True,
+            save_json=True,
+            save_hybrid=False,
+            half=True,
+            device=0
+        )
+        print("✅ Evaluation complete. Results saved in:", results.save_dir)
 
 
 if __name__ == "__main__":
 
     train = Train()
-    weights = "ball_player_model/best.pt"
-    train.prepare_data_structrue()
-    train.evaluate_model(weights)
+    #train.prepare_data_structrue()
+    #train.train_model()
+    train.evaluate_model('ball_player_model/phase2_full/weights//best.pt')
+    #train.evaluate_pitch_keypoint_model()
+
 
     
